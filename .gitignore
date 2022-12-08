@@ -1,0 +1,19 @@
+# Build
+/build/
+
+# Godot Engine generated files
+.import/
+export.cfg
+
+# Mono
+.mono/
+/Properties/
+*.csproj
+*.sln
+mono_crash.*
+
+# GNU nano
+*.swp
+
+# VSCode
+.vscode/
