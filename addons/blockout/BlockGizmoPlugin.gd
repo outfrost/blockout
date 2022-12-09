@@ -22,9 +22,12 @@ func redraw(gizmo: EditorSpatialGizmo) -> void:
 	var block = gizmo.get_spatial_node()
 
 	var handles = PoolVector3Array()
-	handles.push_back(Vector3.RIGHT * block.size.x)
-	handles.push_back(Vector3.UP * block.size.y)
-	handles.push_back(Vector3.BACK * block.size.z)
+	handles.push_back(Vector3.RIGHT * block.size.x * 0.5)
+	handles.push_back(Vector3.LEFT * block.size.x * 0.5)
+	handles.push_back(Vector3.UP * block.size.y * 0.5)
+	handles.push_back(Vector3.DOWN * block.size.y * 0.5)
+	handles.push_back(Vector3.BACK * block.size.z * 0.5)
+	handles.push_back(Vector3.FORWARD * block.size.z * 0.5)
 
 	gizmo.add_handles(handles, get_material("handle", gizmo))
 
@@ -39,54 +42,98 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 	var block: Block = gizmo.get_spatial_node()
 	match index:
 		0:
-			var point_along_axis: = nearest_point_along_axis(
+			var prev_extent: float = block.size.x * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.RIGHT,
-				block.size.x,
+				prev_extent,
 				camera,
 				point)
 
-			if !is_nan(point_along_axis.x):
-				block.size.x = point_along_axis.x
+			if is_nan(point_along_semiaxis.x):
+				return
+
+			var new_extent: float = point_along_semiaxis.x
+			block.translate_object_local(Vector3.RIGHT * (new_extent - prev_extent) * 0.5)
+			block.size.x = prev_extent + new_extent
 		1:
-			var point_along_axis: = nearest_point_along_axis(
+			var prev_extent: float = block.size.x * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
+				block.global_transform,
+				Vector3.LEFT,
+				prev_extent,
+				camera,
+				point)
+
+			if is_nan(point_along_semiaxis.x):
+				return
+
+			var new_extent: float = - point_along_semiaxis.x
+			block.translate_object_local(Vector3.LEFT * (new_extent - prev_extent) * 0.5)
+			block.size.x = prev_extent + new_extent
+		2:
+			var prev_extent: float = block.size.y * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.UP,
-				block.size.y,
+				prev_extent,
 				camera,
 				point)
 
-			if !is_nan(point_along_axis.y):
-				block.size.y = point_along_axis.y
-		2:
-			var point_along_axis: = nearest_point_along_axis(
+			if is_nan(point_along_semiaxis.y):
+				return
+
+			var new_extent: float = point_along_semiaxis.y
+			block.translate_object_local(Vector3.UP * (new_extent - prev_extent) * 0.5)
+			block.size.y = prev_extent + new_extent
+		3:
+			var prev_extent: float = block.size.y * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
+				block.global_transform,
+				Vector3.DOWN,
+				prev_extent,
+				camera,
+				point)
+
+			if is_nan(point_along_semiaxis.y):
+				return
+
+			var new_extent: float = - point_along_semiaxis.y
+			block.translate_object_local(Vector3.DOWN * (new_extent - prev_extent) * 0.5)
+			block.size.y = prev_extent + new_extent
+		4:
+			var prev_extent: float = block.size.z * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.BACK,
-				block.size.z,
+				prev_extent,
 				camera,
 				point)
 
-			if !is_nan(point_along_axis.z):
-				block.size.z = point_along_axis.z
+			if is_nan(point_along_semiaxis.z):
+				return
+
+			var new_extent: float = point_along_semiaxis.z
+			block.translate_object_local(Vector3.BACK * (new_extent - prev_extent) * 0.5)
+			block.size.z = prev_extent + new_extent
+		5:
+			var prev_extent: float = block.size.z * 0.5
+			var point_along_semiaxis: = nearest_point_along_semiaxis(
+				block.global_transform,
+				Vector3.FORWARD,
+				prev_extent,
+				camera,
+				point)
+
+			if is_nan(point_along_semiaxis.z):
+				return
+
+			var new_extent: float = - point_along_semiaxis.z
+			block.translate_object_local(Vector3.FORWARD * (new_extent - prev_extent) * 0.5)
+			block.size.z = prev_extent + new_extent
 		_:
 			push_error("wtf")
 			return
-
-func nearest_point_along_axis(
-	block_global_transform: Transform,
-	axis_direction: Vector3,
-	current_extent: float,
-	camera: Camera,
-	viewport_point: Vector2
-) -> Vector3:
-	var points: = Geometry.get_closest_points_between_segments(
-		block_global_transform.origin,
-		block_global_transform.origin + (block_global_transform.basis.xform(axis_direction) * max(current_extent, 1.0) * 100.0),
-		camera.project_ray_origin(viewport_point),
-		camera.project_ray_origin(viewport_point) + (camera.project_ray_normal(viewport_point) * camera.far))
-	print(points[0])
-	var point_local: Vector3 = block_global_transform.xform_inv(points[0])
-	return point_local
 
 func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore, cancel: bool = false) -> void:
 	if !cancel:
@@ -94,3 +141,19 @@ func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore, cancel: bool 
 
 	var block: Block = gizmo.get_spatial_node()
 	block.size = restore
+
+static func nearest_point_along_semiaxis(
+	block_global_transform: Transform,
+	direction: Vector3,
+	current_extent: float,
+	camera: Camera,
+	viewport_point: Vector2
+) -> Vector3:
+	var points: = Geometry.get_closest_points_between_segments(
+		block_global_transform.origin,
+		block_global_transform.origin + (block_global_transform.basis.xform(direction) * max(current_extent, 1.0) * 100.0),
+		camera.project_ray_origin(viewport_point),
+		camera.project_ray_origin(viewport_point) + (camera.project_ray_normal(viewport_point) * camera.far))
+	print(points[0])
+	var point_local: Vector3 = block_global_transform.xform_inv(points[0])
+	return point_local
