@@ -10,4 +10,3 @@ script = ExtResource( 1 )
 
 [node name="Block" type="Spatial" parent="Blockout"]
 script = ExtResource( 2 )
-size = Vector3( 0.953185, 1, 1 )

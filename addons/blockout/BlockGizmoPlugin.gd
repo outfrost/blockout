@@ -2,6 +2,8 @@ extends EditorSpatialGizmoPlugin
 
 const Block: = preload("res://addons/blockout/Block.gd")
 
+const SNAP: Vector3 = Vector3.ONE
+
 func _init() -> void:
 	create_handle_material("handle")
 
@@ -27,51 +29,68 @@ func redraw(gizmo: EditorSpatialGizmo) -> void:
 	gizmo.add_handles(handles, get_material("handle", gizmo))
 
 func get_handle_name(gizmo: EditorSpatialGizmo, index: int) -> String:
-	match index:
-		0: return "X"
-		1: return "Y"
-		2: return "Z"
-		_: return "wtf"
+	return "Size"
 
 func get_handle_value(gizmo: EditorSpatialGizmo, index: int):
-	match index:
-		0: return gizmo.get_spatial_node().size.x
-		1: return gizmo.get_spatial_node().size.y
-		2: return gizmo.get_spatial_node().size.z
-		_: return NAN
+	var block: Block = gizmo.get_spatial_node()
+	return block.size
 
 func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Vector2) -> void:
 	var block: Block = gizmo.get_spatial_node()
-	var axis_size: float
-	var axis: Vector3
 	match index:
 		0:
-			axis_size = block.size.x
-			axis = Vector3.RIGHT
+			var point_along_axis: = nearest_point_along_axis(
+				block.global_transform,
+				Vector3.RIGHT,
+				block.size.x,
+				camera,
+				point)
+
+			if !is_nan(point_along_axis.x):
+				block.size.x = point_along_axis.x
 		1:
-			axis_size = block.size.y
-			axis = Vector3.UP
+			var point_along_axis: = nearest_point_along_axis(
+				block.global_transform,
+				Vector3.UP,
+				block.size.y,
+				camera,
+				point)
+
+			if !is_nan(point_along_axis.y):
+				block.size.y = point_along_axis.y
 		2:
-			axis_size = block.size.z
-			axis = Vector3.BACK
+			var point_along_axis: = nearest_point_along_axis(
+				block.global_transform,
+				Vector3.BACK,
+				block.size.z,
+				camera,
+				point)
+
+			if !is_nan(point_along_axis.z):
+				block.size.z = point_along_axis.z
 		_:
 			push_error("wtf")
 			return
 
+func nearest_point_along_axis(
+	block_global_transform: Transform,
+	axis_direction: Vector3,
+	current_extent: float,
+	camera: Camera,
+	viewport_point: Vector2
+) -> Vector3:
 	var points: = Geometry.get_closest_points_between_segments(
-		block.global_translation,
-		block.global_translation + (block.global_transform.xform(axis) * max(axis_size, 1.0) * 100.0),
-		camera.project_ray_origin(point),
-		camera.project_ray_origin(point) + (camera.project_ray_normal(point) * camera.far))
-	var point_local: Vector3 = block.global_transform.xform_inv(points[0])
+		block_global_transform.origin,
+		block_global_transform.origin + (block_global_transform.basis.xform(axis_direction) * max(current_extent, 1.0) * 100.0),
+		camera.project_ray_origin(viewport_point),
+		camera.project_ray_origin(viewport_point) + (camera.project_ray_normal(viewport_point) * camera.far))
+	print(points[0])
+	var point_local: Vector3 = block_global_transform.xform_inv(points[0])
+	return point_local
 
-	match index:
-		0:
-			if !is_nan(point_local.x):
-				block.size.x = point_local.x
-		1:
-			if !is_nan(point_local.y):
-				block.size.y = point_local.y
-		2:
-			if !is_nan(point_local.z):
-				block.size.z = point_local.z
+func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore, cancel: bool = false) -> void:
+	if !cancel:
+		return
+
+	var block: Block = gizmo.get_spatial_node()
+	block.size = restore
