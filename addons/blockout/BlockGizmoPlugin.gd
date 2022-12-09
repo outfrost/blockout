@@ -2,7 +2,7 @@ extends EditorSpatialGizmoPlugin
 
 const Block: = preload("res://addons/blockout/Block.gd")
 
-const SNAP: Vector3 = Vector3.ONE
+const SNAP_STEP: float = 1.0
 
 func _init() -> void:
 	create_handle_material("handle")
@@ -40,6 +40,11 @@ func get_handle_value(gizmo: EditorSpatialGizmo, index: int):
 
 func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Vector2) -> void:
 	var block: Block = gizmo.get_spatial_node()
+	var snap: float = SNAP_STEP
+	if Input.is_key_pressed(KEY_SHIFT):
+		snap *= 0.1
+	if Input.is_key_pressed(KEY_CONTROL):
+		snap = 0.0
 	match index:
 		0:
 			var prev_extent: float = block.size.x * 0.5
@@ -53,9 +58,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.x):
 				return
 
-			var new_extent: float = point_along_semiaxis.x
-			block.translate_object_local(Vector3.RIGHT * (new_extent - prev_extent) * 0.5)
-			block.size.x = prev_extent + new_extent
+			var extent_diff: float = stepify(point_along_semiaxis.x - prev_extent, snap)
+			block.translate_object_local(Vector3.RIGHT * extent_diff * 0.5)
+			block.size.x += extent_diff
 		1:
 			var prev_extent: float = block.size.x * 0.5
 			var point_along_semiaxis: = nearest_point_along_semiaxis(
@@ -68,9 +73,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.x):
 				return
 
-			var new_extent: float = - point_along_semiaxis.x
-			block.translate_object_local(Vector3.LEFT * (new_extent - prev_extent) * 0.5)
-			block.size.x = prev_extent + new_extent
+			var extent_diff: float = stepify(- point_along_semiaxis.x - prev_extent, snap)
+			block.translate_object_local(Vector3.LEFT * extent_diff * 0.5)
+			block.size.x += extent_diff
 		2:
 			var prev_extent: float = block.size.y * 0.5
 			var point_along_semiaxis: = nearest_point_along_semiaxis(
@@ -83,9 +88,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.y):
 				return
 
-			var new_extent: float = point_along_semiaxis.y
-			block.translate_object_local(Vector3.UP * (new_extent - prev_extent) * 0.5)
-			block.size.y = prev_extent + new_extent
+			var extent_diff: float = stepify(point_along_semiaxis.y - prev_extent, snap)
+			block.translate_object_local(Vector3.UP * extent_diff * 0.5)
+			block.size.y += extent_diff
 		3:
 			var prev_extent: float = block.size.y * 0.5
 			var point_along_semiaxis: = nearest_point_along_semiaxis(
@@ -98,9 +103,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.y):
 				return
 
-			var new_extent: float = - point_along_semiaxis.y
-			block.translate_object_local(Vector3.DOWN * (new_extent - prev_extent) * 0.5)
-			block.size.y = prev_extent + new_extent
+			var extent_diff: float = stepify(- point_along_semiaxis.y - prev_extent, snap)
+			block.translate_object_local(Vector3.DOWN * extent_diff * 0.5)
+			block.size.y += extent_diff
 		4:
 			var prev_extent: float = block.size.z * 0.5
 			var point_along_semiaxis: = nearest_point_along_semiaxis(
@@ -113,9 +118,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.z):
 				return
 
-			var new_extent: float = point_along_semiaxis.z
-			block.translate_object_local(Vector3.BACK * (new_extent - prev_extent) * 0.5)
-			block.size.z = prev_extent + new_extent
+			var extent_diff: float = stepify(point_along_semiaxis.z - prev_extent, snap)
+			block.translate_object_local(Vector3.BACK * extent_diff * 0.5)
+			block.size.z += extent_diff
 		5:
 			var prev_extent: float = block.size.z * 0.5
 			var point_along_semiaxis: = nearest_point_along_semiaxis(
@@ -128,9 +133,9 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			if is_nan(point_along_semiaxis.z):
 				return
 
-			var new_extent: float = - point_along_semiaxis.z
-			block.translate_object_local(Vector3.FORWARD * (new_extent - prev_extent) * 0.5)
-			block.size.z = prev_extent + new_extent
+			var extent_diff: float = stepify(- point_along_semiaxis.z - prev_extent, snap)
+			block.translate_object_local(Vector3.FORWARD * extent_diff * 0.5)
+			block.size.z += extent_diff
 		_:
 			push_error("wtf")
 			return
@@ -154,6 +159,5 @@ static func nearest_point_along_semiaxis(
 		block_global_transform.origin + (block_global_transform.basis.xform(direction) * max(current_extent, 1.0) * 100.0),
 		camera.project_ray_origin(viewport_point),
 		camera.project_ray_origin(viewport_point) + (camera.project_ray_normal(viewport_point) * camera.far))
-	print(points[0])
 	var point_local: Vector3 = block_global_transform.xform_inv(points[0])
 	return point_local
