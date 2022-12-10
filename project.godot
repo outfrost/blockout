@@ -25,6 +25,18 @@ enabled=PoolStringArray( "res://addons/blockout/plugin.cfg", "res://addons/godot
 
 common/drop_mouse_on_gui_input_disabled=true
 
+[importer_defaults]
+
+texture={
+"compress/mode": 2,
+"compress/normal_map": 2,
+"detect_3d": false,
+"flags/anisotropic": true,
+"flags/mipmaps": true,
+"flags/repeat": 1,
+"flags/srgb": 1
+}
+
 [physics]
 
 common/enable_pause_aware_picking=true
