@@ -4,6 +4,17 @@ const Block: = preload("res://addons/blockout/Block.gd")
 
 const SNAP_STEP: float = 1.0
 
+class HandleValue:
+	var size: Vector3
+	var origin: Vector3
+
+	func _init(size: Vector3, origin: Vector3) -> void:
+		self.size = size
+		self.origin = origin
+
+	func _to_string() -> String:
+		return str(size)
+
 func _init() -> void:
 	create_handle_material("handle")
 
@@ -34,9 +45,9 @@ func redraw(gizmo: EditorSpatialGizmo) -> void:
 func get_handle_name(gizmo: EditorSpatialGizmo, index: int) -> String:
 	return "Size"
 
-func get_handle_value(gizmo: EditorSpatialGizmo, index: int):
+func get_handle_value(gizmo: EditorSpatialGizmo, index: int) -> HandleValue:
 	var block: Block = gizmo.get_spatial_node()
-	return block.size
+	return HandleValue.new(block.size, block.global_translation)
 
 func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Vector2) -> void:
 	var block: Block = gizmo.get_spatial_node()
@@ -140,12 +151,19 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			push_error("wtf")
 			return
 
-func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore, cancel: bool = false) -> void:
-	if !cancel:
-		return
-
+func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore: HandleValue, cancel: bool = false) -> void:
 	var block: Block = gizmo.get_spatial_node()
-	block.size = restore
+	if cancel:
+		block.size = restore.size
+		block.global_translation = restore.origin
+	else:
+		var undo: = BlockoutUtil.plugin.get_undo_redo()
+		undo.create_action("Resize Block")
+		undo.add_do_property(block, "global_translation", block.global_translation)
+		undo.add_do_property(block, "size", block.size)
+		undo.add_undo_property(block, "global_translation", restore.origin)
+		undo.add_undo_property(block, "size", restore.size)
+		undo.commit_action()
 
 static func nearest_point_along_semiaxis(
 	block_global_transform: Transform,
