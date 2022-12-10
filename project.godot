@@ -13,6 +13,10 @@ config_version=4
 config/name="Blockout"
 config/icon="res://icon.png"
 
+[autoload]
+
+BlockoutUtil="*res://addons/blockout/BlockoutUtil.gd"
+
 [editor_plugins]
 
 enabled=PoolStringArray( "res://addons/blockout/plugin.cfg", "res://addons/godot-plugin-refresher/plugin.cfg" )
