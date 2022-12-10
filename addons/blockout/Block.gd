@@ -23,6 +23,7 @@ export(int, 0, 9) var texture_variant: int = 0 setget set_texture_variant
 
 onready var mesh_inst: MeshInstance = $"%MeshInstance"
 onready var material: Material = MATERIAL.duplicate(false)
+onready var collision_shape: CollisionShape = $"%CollisionShape"
 
 func _ready() -> void:
 	if BlockoutUtil.plugin.get_editor_interface().get_edited_scene_root() == self:
@@ -37,10 +38,16 @@ func _ready() -> void:
 	mesh.material = material
 	mesh_inst.mesh = mesh
 
+	var shape: = BoxShape.new()
+	shape.extents = size * 0.5
+	collision_shape.shape = shape
+
 func set_size(v: Vector3) -> void:
 	size = v
 	if mesh_inst && mesh_inst.mesh:
 		mesh_inst.mesh.size = size
+	if collision_shape && collision_shape.shape:
+		collision_shape.shape.extents = size * 0.5
 	update_gizmo()
 	BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
 
