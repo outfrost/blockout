@@ -9,3 +9,35 @@
 script = ExtResource( 1 )
 
 [node name="Block" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 2.5 )
+size = Vector3( 5, 1, 5 )
+color = "green"
+texture_variant = 7
+
+[node name="Block5" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1, 0.75 )
+size = Vector3( 5, 1, 1.5 )
+color = "red"
+texture_variant = 1
+
+[node name="Block6" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 3.5, 0.55, 3.5 )
+size = Vector3( 1, 0.1, 1 )
+texture_variant = 6
+
+[node name="Block2" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 1.25, 3.75 )
+size = Vector3( 0.2, 1.5, 2.5 )
+color = "purple"
+
+[node name="Block3" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 0.75, 2.25 )
+size = Vector3( 0.5, 0.5, 0.500001 )
+color = "orange"
+texture_variant = 4
+
+[node name="Block4" parent="Blockout" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.75, 0.75, 2.25 )
+size = Vector3( 0.5, 0.5, 0.500001 )
+color = "orange"
+texture_variant = 4
