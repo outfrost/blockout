@@ -42,6 +42,7 @@ func set_size(v: Vector3) -> void:
 	if mesh_inst && mesh_inst.mesh:
 		mesh_inst.mesh.size = size
 	update_gizmo()
+	BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
 
 func set_color(v: String) -> void:
 	var filename: String = TEXTURE_ROOT + "/" + v + "/" + TEXTURE_NAMES[texture_variant]
