@@ -4,7 +4,7 @@ extends Spatial
 export var size: = Vector3.ONE setget set_size
 
 func _ready() -> void:
-	size = Vector3.ONE
+	pass
 
 func _process(delta: float) -> void:
 	pass
