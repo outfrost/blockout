@@ -2,24 +2,11 @@ extends EditorSpatialGizmoPlugin
 
 const Block: = preload("res://addons/blockout/Block.gd")
 
-const SNAP_STEP: float = 1.0
-
-class HandleValue:
-	var size: Vector3
-	var origin: Vector3
-
-	func _init(size: Vector3, origin: Vector3) -> void:
-		self.size = size
-		self.origin = origin
-
-	func _to_string() -> String:
-		return str(size)
-
 func _init() -> void:
 	create_handle_material("handle")
 
 func get_name() -> String:
-	return "bruh"
+	return "Blockout"
 
 func has_gizmo(spatial: Spatial) -> bool:
 	return spatial is Block
@@ -45,13 +32,13 @@ func redraw(gizmo: EditorSpatialGizmo) -> void:
 func get_handle_name(gizmo: EditorSpatialGizmo, index: int) -> String:
 	return "Size"
 
-func get_handle_value(gizmo: EditorSpatialGizmo, index: int) -> HandleValue:
+func get_handle_value(gizmo: EditorSpatialGizmo, index: int) -> BlockoutUtil.ResizeState:
 	var block: Block = gizmo.get_spatial_node()
-	return HandleValue.new(block.size, block.global_translation)
+	return BlockoutUtil.ResizeState.new(block.size, block.global_translation)
 
 func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Vector2) -> void:
 	var block: Block = gizmo.get_spatial_node()
-	var snap: float = SNAP_STEP
+	var snap: float = BlockoutUtil.SNAP_STEP
 	if Input.is_key_pressed(KEY_SHIFT):
 		snap *= 0.1
 	if Input.is_key_pressed(KEY_CONTROL):
@@ -59,7 +46,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 	match index:
 		0:
 			var prev_extent: float = block.size.x * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.RIGHT,
 				prev_extent,
@@ -74,7 +61,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			block.size.x += extent_diff
 		1:
 			var prev_extent: float = block.size.x * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.LEFT,
 				prev_extent,
@@ -89,7 +76,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			block.size.x += extent_diff
 		2:
 			var prev_extent: float = block.size.y * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.UP,
 				prev_extent,
@@ -104,7 +91,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			block.size.y += extent_diff
 		3:
 			var prev_extent: float = block.size.y * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.DOWN,
 				prev_extent,
@@ -119,7 +106,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			block.size.y += extent_diff
 		4:
 			var prev_extent: float = block.size.z * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.BACK,
 				prev_extent,
@@ -134,7 +121,7 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			block.size.z += extent_diff
 		5:
 			var prev_extent: float = block.size.z * 0.5
-			var point_along_semiaxis: = nearest_point_along_semiaxis(
+			var point_along_semiaxis: = BlockoutUtil.nearest_point_along_semiaxis(
 				block.global_transform,
 				Vector3.FORWARD,
 				prev_extent,
@@ -151,7 +138,12 @@ func set_handle(gizmo: EditorSpatialGizmo, index: int, camera: Camera, point: Ve
 			push_error("wtf")
 			return
 
-func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore: HandleValue, cancel: bool = false) -> void:
+func commit_handle(
+	gizmo: EditorSpatialGizmo,
+	index: int,
+	restore: BlockoutUtil.ResizeState,
+	cancel: bool = false
+) -> void:
 	var block: Block = gizmo.get_spatial_node()
 	if cancel:
 		block.size = restore.size
@@ -164,18 +156,3 @@ func commit_handle(gizmo: EditorSpatialGizmo, index: int, restore: HandleValue, 
 		undo.add_undo_property(block, "global_translation", restore.origin)
 		undo.add_undo_property(block, "size", restore.size)
 		undo.commit_action()
-
-static func nearest_point_along_semiaxis(
-	block_global_transform: Transform,
-	direction: Vector3,
-	current_extent: float,
-	camera: Camera,
-	viewport_point: Vector2
-) -> Vector3:
-	var points: = Geometry.get_closest_points_between_segments(
-		block_global_transform.origin,
-		block_global_transform.origin + (block_global_transform.basis.xform(direction) * max(current_extent, 1.0) * 100.0),
-		camera.project_ray_origin(viewport_point),
-		camera.project_ray_origin(viewport_point) + (camera.project_ray_normal(viewport_point) * camera.far))
-	var point_local: Vector3 = block_global_transform.xform_inv(points[0])
-	return point_local
