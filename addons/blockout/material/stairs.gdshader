@@ -1,6 +1,7 @@
 shader_type spatial;
 
 uniform sampler2D base_texture : hint_albedo;
+uniform vec3 local_pos_offset = vec3(0.0);
 
 /*
 local vertex position to uv conversion
@@ -16,8 +17,7 @@ local vertex position to uv conversion
 varying vec2 local_uv;
 
 void vertex() {
-	vec3 origin_world_pos = (WORLD_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-	vec3 reference_pos = VERTEX + origin_world_pos;
+	vec3 reference_pos = VERTEX + local_pos_offset;
 	local_uv.x =
 		reference_pos.x * clamp(NORMAL.z + abs(NORMAL.y), 0.0, 1.0)
 		- reference_pos.x * clamp(- NORMAL.z, 0.0, 1.0)

@@ -2,6 +2,7 @@ tool
 extends Node
 
 const SNAP_STEP: float = 1.0
+const TEXTURE_ROOT: String = "res://addons/blockout/texture/kenney"
 
 class ResizeState:
 	var size: Vector3

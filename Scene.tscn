@@ -45,4 +45,3 @@ texture_variant = 4
 
 [node name="Stairs" parent="Blockout" instance=ExtResource( 3 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.5, 4 )
-size = Vector3( 1, 1, 1 )

@@ -3,7 +3,6 @@ extends Spatial
 
 const MATERIAL: Material = preload("res://addons/blockout/material/block_mat.tres")
 
-const TEXTURE_ROOT: String = "res://addons/blockout/texture/kenney"
 const TEXTURE_NAMES: Array = [
 	"00.png",
 	"01.png",
@@ -31,7 +30,7 @@ func _ready() -> void:
 
 	material.set_shader_param(
 		"base_texture",
-		load(TEXTURE_ROOT + "/" + color + "/" + TEXTURE_NAMES[texture_variant]))
+		load(BlockoutUtil.TEXTURE_ROOT + "/" + color + "/" + TEXTURE_NAMES[texture_variant]))
 
 	var mesh: = CubeMesh.new()
 	mesh.size = size
@@ -52,7 +51,7 @@ func set_size(v: Vector3) -> void:
 	BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
 
 func set_color(v: String) -> void:
-	var filename: String = TEXTURE_ROOT + "/" + v + "/" + TEXTURE_NAMES[texture_variant]
+	var filename: String = BlockoutUtil.TEXTURE_ROOT + "/" + v + "/" + TEXTURE_NAMES[texture_variant]
 	if !File.new().file_exists(filename):
 		push_error("Block texture color \"%s\" doesn't exist" % v)
 		return
@@ -61,7 +60,7 @@ func set_color(v: String) -> void:
 		material.set_shader_param("base_texture", load(filename))
 
 func set_texture_variant(v: int) -> void:
-	var filename: String = TEXTURE_ROOT + "/" + color + "/" + TEXTURE_NAMES[v]
+	var filename: String = BlockoutUtil.TEXTURE_ROOT + "/" + color + "/" + TEXTURE_NAMES[v]
 	if !File.new().file_exists(filename):
 		push_error("Block texture variant %d doesn't exist" % v)
 		return
