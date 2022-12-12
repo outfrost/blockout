@@ -12,7 +12,7 @@ export(String, "dark", "green", "light", "orange", "purple", "red") var color: S
 var ready: bool = false
 
 func _ready() -> void:
-	if BlockoutUtil.plugin.get_editor_interface().get_edited_scene_root() == self:
+	if Engine.editor_hint && BlockoutUtil.plugin.get_editor_interface().get_edited_scene_root() == self:
 		return
 
 	regen_geometry()
@@ -45,7 +45,6 @@ func regen_geometry() -> void:
 		material.set_shader_param("local_pos_offset", pos_offset)
 		material.set_shader_param("stairs_size", size)
 		material.set_shader_param("stair_height_ratio", (size.y / segments) / STAIR_HEIGHT)
-		material.set_shader_param("stair_height", (size.y / segments))
 
 		var mesh: = CubeMesh.new()
 		mesh.size = Vector3(size.x, segment_height, segment_length)
@@ -61,8 +60,10 @@ func set_size(v: Vector3) -> void:
 	size = v
 	if ready:
 		regen_geometry()
-	update_gizmo()
-	BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
+
+	if Engine.editor_hint:
+		update_gizmo()
+		BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
 
 func set_color(v: String) -> void:
 	var base_filename: String = BlockoutUtil.TEXTURE_ROOT + "/" + v + "/" + BASE_TEXTURE_NAME

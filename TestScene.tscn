@@ -6,6 +6,10 @@
 
 [node name="TestScene" type="Spatial"]
 
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 4.3, 3, 6.1 )
+current = true
+
 [node name="Blockout" type="Spatial" parent="."]
 script = ExtResource( 1 )
 

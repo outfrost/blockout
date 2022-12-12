@@ -25,7 +25,7 @@ onready var material: Material = MATERIAL.duplicate(false)
 onready var collision_shape: CollisionShape = $"%CollisionShape"
 
 func _ready() -> void:
-	if BlockoutUtil.plugin.get_editor_interface().get_edited_scene_root() == self:
+	if Engine.editor_hint && BlockoutUtil.plugin.get_editor_interface().get_edited_scene_root() == self:
 		return
 
 	material.set_shader_param(
@@ -47,8 +47,10 @@ func set_size(v: Vector3) -> void:
 		mesh_inst.mesh.size = size
 	if collision_shape && collision_shape.shape:
 		collision_shape.shape.extents = size * 0.5
-	update_gizmo()
-	BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
+
+	if Engine.editor_hint:
+		update_gizmo()
+		BlockoutUtil.plugin.get_editor_interface().get_inspector().refresh()
 
 func set_color(v: String) -> void:
 	var filename: String = BlockoutUtil.TEXTURE_ROOT + "/" + v + "/" + TEXTURE_NAMES[texture_variant]
