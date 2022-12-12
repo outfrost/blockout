@@ -38,7 +38,7 @@ color = "orange"
 texture_variant = 4
 
 [node name="Block4" parent="Blockout" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3.75, 0.75, 2.25 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.15, 2.25 )
 size = Vector3( 0.3, 0.3, 0.300001 )
 color = "orange"
 texture_variant = 4
