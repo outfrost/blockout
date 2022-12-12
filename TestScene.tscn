@@ -4,7 +4,7 @@
 [ext_resource path="res://addons/blockout/prefab/Block.tscn" type="PackedScene" id=2]
 [ext_resource path="res://addons/blockout/prefab/Stairs.tscn" type="PackedScene" id=3]
 
-[node name="Scene" type="Spatial"]
+[node name="TestScene" type="Spatial"]
 
 [node name="Blockout" type="Spatial" parent="."]
 script = ExtResource( 1 )
@@ -16,8 +16,8 @@ color = "green"
 texture_variant = 7
 
 [node name="Block5" parent="Blockout" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1, 0.75 )
-size = Vector3( 5, 1, 1.5 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 1.25, 0.75 )
+size = Vector3( 5, 1.5, 1.5 )
 color = "red"
 texture_variant = 1
 
@@ -44,4 +44,5 @@ color = "orange"
 texture_variant = 4
 
 [node name="Stairs" parent="Blockout" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.5, 4 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0.5, 1.5 )
+size = Vector3( 1, 1.5, 3 )

@@ -6,4 +6,6 @@
 [resource]
 shader = ExtResource( 1 )
 shader_param/local_pos_offset = Vector3( 0, 0, 0 )
+shader_param/stairs_size = Vector3( 1, 1, 1 )
+shader_param/stair_height_ratio = 1.0
 shader_param/base_texture = ExtResource( 2 )
